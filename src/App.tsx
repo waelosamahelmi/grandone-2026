@@ -10,7 +10,7 @@ import {
   Heart, Lock, Megaphone, Flag,
   LayoutDashboard,
   ChevronRight, Quote, Star, CircleDot, Home,
-  HelpCircle, Boxes, Brain, Bot, Tag, Sparkles
+  HelpCircle, Boxes, Brain, Bot, Tag
 } from 'lucide-react';
 
 // ============================================
