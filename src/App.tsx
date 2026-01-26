@@ -160,14 +160,14 @@ const Navigation = () => {
         </div>
 
         <a
-          href="https://norr3.fi/marketing-engine"
+          href="https://norr3demo.netlify.app/"
           target="_blank"
           rel="noopener noreferrer"
           className={`hidden lg:flex items-center gap-2 px-4 py-2 rounded-lg text-sm font-semibold transition-all ${
             isScrolled ? 'bg-purple-600 hover:bg-purple-700 text-white' : 'bg-white text-gray-900 hover:bg-gray-100'
           }`}
         >
-          Access Platform
+          Access Demo
           <ExternalLink size={14} />
         </a>
 
@@ -199,12 +199,12 @@ const Navigation = () => {
                 </a>
               ))}
               <a
-                href="https://norr3.fi/marketing-engine"
+                href="https://norr3demo.netlify.app/"
                 target="_blank"
                 rel="noopener noreferrer"
                 className="bg-purple-700 text-white px-5 py-3 rounded-lg text-sm font-semibold flex items-center justify-center gap-2 mt-4"
               >
-                Access Platform
+                Access Demo
                 <ExternalLink size={16} />
               </a>
             </div>
@@ -345,12 +345,12 @@ const Hero = () => {
             className="flex flex-col sm:flex-row gap-4 justify-center"
           >
             <a
-              href="https://norr3.fi/marketing-engine"
+              href="https://norr3demo.netlify.app/"
               target="_blank"
               rel="noopener noreferrer"
               className="group bg-white px-8 py-4 rounded-full text-lg font-bold text-gray-900 hover:bg-gray-100 transition-all flex items-center justify-center gap-3"
             >
-              <span>Access Platform</span>
+              <span>Access Demo</span>
               <ExternalLink size={18} className="group-hover:translate-x-1 transition-transform" />
             </a>
             <a
@@ -2180,17 +2180,1035 @@ const Solution = () => {
 
             <div className="mt-6 text-center">
               <a
-                href="https://norr3.fi/marketing-engine"
+                href="https://norr3demo.netlify.app/"
                 target="_blank"
                 rel="noopener noreferrer"
                 className="inline-flex items-center gap-2 text-purple-600 hover:text-purple-700 font-semibold"
               >
-                Access the live platform
+                Access the demo
                 <ExternalLink size={16} />
               </a>
             </div>
           </motion.div>
         </div>
+      </div>
+    </section>
+  );
+};
+
+// ============================================
+// CAMPAIGN CREATION DEMO - INTERACTIVE WALKTHROUGH
+// ============================================
+const CampaignCreationDemo = () => {
+  const [ref, inView] = useInView({ triggerOnce: true, threshold: 0.1 });
+  const [currentStep, setCurrentStep] = useState(0);
+  const [isPlaying, setIsPlaying] = useState(false);
+  const [selectedProperties, setSelectedProperties] = useState<number[]>([]);
+  const [selectedChannels, setSelectedChannels] = useState<string[]>([]);
+  const [budget, setBudget] = useState(0);
+  const [mapRadius, setMapRadius] = useState(0);
+  const [visibleScreens, setVisibleScreens] = useState(0);
+  const [creativesGenerated, setCreativesGenerated] = useState(false);
+  const [campaignLaunched, setCampaignLaunched] = useState(false);
+
+  const steps = [
+    { id: 0, title: 'Select Properties', desc: 'Choose from your property feed' },
+    { id: 1, title: 'Choose Channels', desc: 'Select advertising platforms' },
+    { id: 2, title: 'Target Area', desc: 'Set campaign reach on map' },
+    { id: 3, title: 'Set Budget', desc: 'Allocate campaign budget' },
+    { id: 4, title: 'Generate Creatives', desc: 'AI creates channel-optimized ads' },
+    { id: 5, title: 'Launch Campaign', desc: 'Go live across all channels' },
+  ];
+
+  const properties = [
+    { id: 1, name: 'Modern Apartment in Ullanlinna', rooms: '3h+k', sqm: '78m²', price: '€485,000' },
+    { id: 2, name: 'Charming Studio in Kruununhaka', rooms: '1h+kk', sqm: '32m²', price: '€245,000' },
+    { id: 3, name: 'Family Home in Töölö', rooms: '4h+k', sqm: '112m²', price: '€695,000' },
+    { id: 4, name: 'Penthouse in Eira', rooms: '5h+k', sqm: '156m²', price: '€1,250,000' },
+    { id: 5, name: 'Cozy Flat in Kallio', rooms: '2h+k', sqm: '52m²', price: '€320,000' },
+  ];
+
+  const channels = [
+    { id: 'meta', icon: Smartphone, label: 'Meta', desc: 'Facebook & Instagram', color: 'blue' },
+    { id: 'display', icon: Monitor, label: 'Display', desc: 'Programmatic Ads', color: 'purple' },
+    { id: 'dooh', icon: Bus, label: 'DOOH', desc: 'Outdoor & Trams', color: 'green' },
+  ];
+
+  // Screen positions for the map (relative percentages)
+  const screenPositions = [
+    { x: 50, y: 35, delay: 0.1 }, // Center area
+    { x: 42, y: 42, delay: 0.15 },
+    { x: 58, y: 40, delay: 0.2 },
+    { x: 35, y: 50, delay: 0.3 },
+    { x: 65, y: 48, delay: 0.35 },
+    { x: 48, y: 55, delay: 0.4 },
+    { x: 55, y: 58, delay: 0.45 },
+    { x: 30, y: 38, delay: 0.5 },
+    { x: 70, y: 35, delay: 0.55 },
+    { x: 25, y: 55, delay: 0.6 },
+    { x: 75, y: 52, delay: 0.65 },
+    { x: 40, y: 65, delay: 0.7 },
+    { x: 60, y: 62, delay: 0.75 },
+    { x: 20, y: 45, delay: 0.8 },
+    { x: 80, y: 42, delay: 0.85 },
+    { x: 33, y: 28, delay: 0.9 },
+    { x: 67, y: 25, delay: 0.95 },
+  ];
+
+  // Auto-play the demo
+  useEffect(() => {
+    if (inView && !isPlaying) {
+      setIsPlaying(true);
+    }
+  }, [inView]);
+
+  useEffect(() => {
+    if (!isPlaying) return;
+
+    // Timings - first scene faster
+    const baseDelay = 500;
+    
+    // Step 0: Select properties quickly
+    const propTimers = [
+      setTimeout(() => setSelectedProperties([1]), baseDelay),
+      setTimeout(() => setSelectedProperties([1, 2]), baseDelay + 400),
+      setTimeout(() => setSelectedProperties([1, 2, 3]), baseDelay + 800),
+      setTimeout(() => setSelectedProperties([1, 2, 3, 5]), baseDelay + 1200),
+    ];
+
+    // Step 1: Move to channels
+    const timer2 = setTimeout(() => {
+      setCurrentStep(1);
+    }, baseDelay + 2200);
+
+    // Select channels one by one
+    const timer3 = setTimeout(() => setSelectedChannels(['meta']), baseDelay + 3200);
+    const timer4 = setTimeout(() => setSelectedChannels(['meta', 'display']), baseDelay + 4200);
+    const timer5 = setTimeout(() => setSelectedChannels(['meta', 'display', 'dooh']), baseDelay + 5200);
+
+    // Step 2: Map/targeting
+    const timer6 = setTimeout(() => {
+      setCurrentStep(2);
+    }, baseDelay + 6700);
+
+    // Animate radius expanding
+    const timer7 = setTimeout(() => {
+      let r = 0;
+      const radiusInterval = setInterval(() => {
+        r += 2;
+        setMapRadius(r);
+        // Calculate visible screens based on radius
+        const screens = Math.min(Math.floor(r / 6), 56);
+        setVisibleScreens(screens);
+        if (r >= 100) clearInterval(radiusInterval);
+      }, 50);
+    }, baseDelay + 7200);
+
+    // Step 3: Budget
+    const timer8 = setTimeout(() => {
+      setCurrentStep(3);
+    }, baseDelay + 12200);
+
+    // Animate budget
+    const timer9 = setTimeout(() => {
+      let b = 0;
+      const budgetInterval = setInterval(() => {
+        b += 25;
+        setBudget(b);
+        if (b >= 750) clearInterval(budgetInterval);
+      }, 40);
+    }, baseDelay + 12700);
+
+    // Step 4: Generate creatives
+    const timer10 = setTimeout(() => {
+      setCurrentStep(4);
+    }, baseDelay + 15700);
+
+    const timer11 = setTimeout(() => {
+      setCreativesGenerated(true);
+    }, baseDelay + 18200);
+
+    // Step 5: Launch
+    const timer12 = setTimeout(() => {
+      setCurrentStep(5);
+    }, baseDelay + 20700);
+
+    const timer13 = setTimeout(() => {
+      setCampaignLaunched(true);
+    }, baseDelay + 21700);
+
+    // Reset and replay
+    const timer14 = setTimeout(() => {
+      setCurrentStep(0);
+      setSelectedProperties([]);
+      setSelectedChannels([]);
+      setBudget(0);
+      setMapRadius(0);
+      setVisibleScreens(0);
+      setCreativesGenerated(false);
+      setCampaignLaunched(false);
+    }, baseDelay + 26000);
+
+    return () => {
+      propTimers.forEach(clearTimeout);
+      [timer2, timer3, timer4, timer5, timer6, timer7, timer8, timer9, timer10, timer11, timer12, timer13, timer14].forEach(clearTimeout);
+    };
+  }, [isPlaying, currentStep === 0 && selectedProperties.length === 0]);
+
+  // Restart animation when it completes
+  useEffect(() => {
+    if (currentStep === 0 && selectedProperties.length === 0 && isPlaying) {
+      const restartTimer = setTimeout(() => {
+        setIsPlaying(true);
+      }, 1000);
+      return () => clearTimeout(restartTimer);
+    }
+  }, [currentStep, selectedProperties, isPlaying]);
+
+  return (
+    <section className="py-24 bg-gradient-to-b from-purple-50 to-white overflow-hidden">
+      <div className="max-w-7xl mx-auto px-6">
+        <motion.div
+          ref={ref}
+          initial={{ opacity: 0, y: 30 }}
+          animate={inView ? { opacity: 1, y: 0 } : {}}
+          className="text-center max-w-4xl mx-auto mb-12"
+        >
+          <SectionLabel icon={Rocket} label="See It In Action" color="purple" />
+          
+          <h2 className="text-4xl md:text-5xl font-black mb-6 text-gray-900">
+            Campaign Creation
+            <br />
+            <span className="gradient-text">In Under 5 Minutes</span>
+          </h2>
+          <p className="text-xl text-gray-600">
+            Watch how franchise owners launch sophisticated multi-channel campaigns 
+            without any technical expertise.
+          </p>
+        </motion.div>
+
+        {/* Progress Steps */}
+        <motion.div
+          initial={{ opacity: 0, y: 20 }}
+          animate={inView ? { opacity: 1, y: 0 } : {}}
+          transition={{ delay: 0.2 }}
+          className="flex justify-center gap-1 md:gap-2 mb-8 flex-wrap"
+        >
+          {steps.map((step, i) => (
+            <div
+              key={step.id}
+              className={`flex items-center gap-1.5 px-2 md:px-3 py-1.5 md:py-2 rounded-full transition-all duration-500 ${
+                currentStep === i 
+                  ? 'bg-purple-600 text-white shadow-lg scale-105' 
+                  : currentStep > i 
+                    ? 'bg-green-100 text-green-700' 
+                    : 'bg-gray-100 text-gray-400'
+              }`}
+            >
+              <div className={`w-5 h-5 md:w-6 md:h-6 rounded-full flex items-center justify-center text-xs font-bold ${
+                currentStep > i ? 'bg-green-500 text-white' : currentStep === i ? 'bg-white text-purple-600' : 'bg-gray-300 text-white'
+              }`}>
+                {currentStep > i ? <Check size={12} /> : i + 1}
+              </div>
+              <span className="text-xs md:text-sm font-medium hidden lg:inline">{step.title}</span>
+            </div>
+          ))}
+        </motion.div>
+
+        {/* Demo Container */}
+        <motion.div
+          initial={{ opacity: 0, scale: 0.95 }}
+          animate={inView ? { opacity: 1, scale: 1 } : {}}
+          transition={{ delay: 0.3 }}
+          className="max-w-5xl mx-auto"
+        >
+          <div className="bg-white rounded-2xl shadow-2xl border border-gray-200 overflow-hidden">
+            {/* Browser Header */}
+            <div className="bg-gray-100 px-4 py-3 flex items-center gap-3 border-b border-gray-200">
+              <div className="flex gap-2">
+                <div className="w-3 h-3 rounded-full bg-red-400" />
+                <div className="w-3 h-3 rounded-full bg-yellow-400" />
+                <div className="w-3 h-3 rounded-full bg-green-400" />
+              </div>
+              <div className="flex-1 flex justify-center">
+                <div className="bg-white px-4 py-1 rounded-lg text-sm text-gray-500 flex items-center gap-2">
+                  <Lock size={12} />
+                  norr3demo.netlify.app/campaigns/new
+                </div>
+              </div>
+            </div>
+
+            {/* App Header */}
+            <div className="bg-gradient-to-r from-purple-700 to-purple-600 px-6 py-4 flex items-center justify-between">
+              <div className="flex items-center gap-3">
+                <div className="w-8 h-8 rounded-lg bg-white/20 flex items-center justify-center">
+                  <Home size={18} className="text-white" />
+                </div>
+                <div>
+                  <div className="text-white font-bold text-sm">NØRR3 Marketing Engine</div>
+                  <div className="text-purple-200 text-xs">Kiinteistömaailma Helsinki</div>
+                </div>
+              </div>
+              <div className="flex items-center gap-2">
+                <div className="w-8 h-8 rounded-full bg-white/20 flex items-center justify-center">
+                  <Users size={16} className="text-white" />
+                </div>
+              </div>
+            </div>
+
+            {/* Content Area */}
+            <div className="p-6 md:p-8 min-h-[500px]">
+              <AnimatePresence mode="wait">
+                {/* Step 0: Property Selection - Multiple */}
+                {currentStep === 0 && (
+                  <motion.div
+                    key="step0"
+                    initial={{ opacity: 0, x: 50 }}
+                    animate={{ opacity: 1, x: 0 }}
+                    exit={{ opacity: 0, x: -50 }}
+                    className="space-y-4"
+                  >
+                    <div className="flex items-center justify-between mb-6">
+                      <div>
+                        <h3 className="text-xl font-bold text-gray-900">Select Properties to Advertise</h3>
+                        <p className="text-gray-500 text-sm">Choose multiple properties from your live feed</p>
+                      </div>
+                      <div className="flex items-center gap-3">
+                        {selectedProperties.length > 0 && (
+                          <motion.div
+                            initial={{ scale: 0 }}
+                            animate={{ scale: 1 }}
+                            className="px-3 py-1 bg-purple-100 text-purple-700 rounded-full text-sm font-semibold"
+                          >
+                            {selectedProperties.length} selected
+                          </motion.div>
+                        )}
+                        <div className="flex items-center gap-2 text-sm text-green-600">
+                          <motion.div
+                            animate={{ scale: [1, 1.2, 1] }}
+                            transition={{ duration: 1.5, repeat: Infinity }}
+                            className="w-2 h-2 rounded-full bg-green-500"
+                          />
+                          Live Feed
+                        </div>
+                      </div>
+                    </div>
+
+                    <div className="grid gap-2 max-h-[380px] overflow-auto pr-2">
+                      {properties.map((prop) => {
+                        const isSelected = selectedProperties.includes(prop.id);
+                        return (
+                          <motion.div
+                            key={prop.id}
+                            initial={{ opacity: 0, y: 10 }}
+                            animate={{ opacity: 1, y: 0 }}
+                            transition={{ delay: prop.id * 0.05 }}
+                            className={`p-3 rounded-xl border-2 cursor-pointer transition-all ${
+                              isSelected
+                                ? 'border-purple-500 bg-purple-50 shadow-md'
+                                : 'border-gray-100 hover:border-gray-200 bg-white'
+                            }`}
+                          >
+                            <div className="flex items-center gap-4">
+                              <div className={`w-6 h-6 rounded border-2 flex items-center justify-center flex-shrink-0 transition-all ${
+                                isSelected ? 'bg-purple-600 border-purple-600' : 'border-gray-300'
+                              }`}>
+                                {isSelected && (
+                                  <motion.div
+                                    initial={{ scale: 0 }}
+                                    animate={{ scale: 1 }}
+                                  >
+                                    <Check size={14} className="text-white" />
+                                  </motion.div>
+                                )}
+                              </div>
+                              <div className="w-16 h-12 rounded-lg bg-gradient-to-br from-gray-200 to-gray-300 flex items-center justify-center flex-shrink-0">
+                                <Home size={20} className="text-gray-400" />
+                              </div>
+                              <div className="flex-1 min-w-0">
+                                <div className="font-semibold text-gray-900 text-sm truncate">{prop.name}</div>
+                                <div className="flex gap-2 mt-0.5 text-xs text-gray-500">
+                                  <span>{prop.rooms}</span>
+                                  <span>•</span>
+                                  <span>{prop.sqm}</span>
+                                  <span>•</span>
+                                  <span className="text-green-600 font-semibold blur-[2px]">{prop.price}</span>
+                                </div>
+                              </div>
+                            </div>
+                          </motion.div>
+                        );
+                      })}
+                    </div>
+
+                    {selectedProperties.length > 0 && (
+                      <motion.div
+                        initial={{ opacity: 0, y: 10 }}
+                        animate={{ opacity: 1, y: 0 }}
+                        className="flex items-center justify-between p-3 bg-purple-50 rounded-xl border border-purple-100"
+                      >
+                        <div className="text-sm text-purple-700">
+                          <strong>{selectedProperties.length} properties</strong> will be included in this campaign
+                        </div>
+                        <ArrowRight size={16} className="text-purple-600" />
+                      </motion.div>
+                    )}
+                  </motion.div>
+                )}
+
+                {/* Step 1: Channel Selection */}
+                {currentStep === 1 && (
+                  <motion.div
+                    key="step1"
+                    initial={{ opacity: 0, x: 50 }}
+                    animate={{ opacity: 1, x: 0 }}
+                    exit={{ opacity: 0, x: -50 }}
+                    className="space-y-4"
+                  >
+                    <div className="mb-6">
+                      <h3 className="text-xl font-bold text-gray-900">Select Advertising Channels</h3>
+                      <p className="text-gray-500 text-sm">Choose where to run your campaign</p>
+                    </div>
+
+                    <div className="grid md:grid-cols-3 gap-4">
+                      {channels.map((channel) => {
+                        const isSelected = selectedChannels.includes(channel.id);
+                        return (
+                          <motion.div
+                            key={channel.id}
+                            initial={{ opacity: 0, scale: 0.9 }}
+                            animate={{ opacity: 1, scale: 1 }}
+                            className={`p-6 rounded-xl border-2 cursor-pointer transition-all text-center ${
+                              isSelected
+                                ? channel.color === 'blue' ? 'border-blue-500 bg-blue-50 shadow-lg' :
+                                  channel.color === 'purple' ? 'border-purple-500 bg-purple-50 shadow-lg' :
+                                  'border-green-500 bg-green-50 shadow-lg'
+                                : 'border-gray-100 hover:border-gray-200 bg-white'
+                            }`}
+                          >
+                            <div className={`w-16 h-16 mx-auto rounded-xl flex items-center justify-center mb-3 ${
+                              isSelected
+                                ? channel.color === 'blue' ? 'bg-blue-100' :
+                                  channel.color === 'purple' ? 'bg-purple-100' :
+                                  'bg-green-100'
+                                : 'bg-gray-100'
+                            }`}>
+                              <channel.icon size={32} className={
+                                isSelected
+                                  ? channel.color === 'blue' ? 'text-blue-600' :
+                                    channel.color === 'purple' ? 'text-purple-600' :
+                                    'text-green-600'
+                                  : 'text-gray-400'
+                              } />
+                            </div>
+                            <div className="font-bold text-gray-900">{channel.label}</div>
+                            <div className="text-sm text-gray-500">{channel.desc}</div>
+                            {isSelected && (
+                              <motion.div
+                                initial={{ scale: 0 }}
+                                animate={{ scale: 1 }}
+                                className={`mt-3 inline-flex items-center gap-1 px-3 py-1 rounded-full text-xs font-semibold ${
+                                  channel.color === 'blue' ? 'bg-blue-600 text-white' :
+                                  channel.color === 'purple' ? 'bg-purple-600 text-white' :
+                                  'bg-green-600 text-white'
+                                }`}
+                              >
+                                <Check size={12} /> Selected
+                              </motion.div>
+                            )}
+                          </motion.div>
+                        );
+                      })}
+                    </div>
+
+                    {selectedChannels.length > 0 && (
+                      <motion.div
+                        initial={{ opacity: 0, y: 10 }}
+                        animate={{ opacity: 1, y: 0 }}
+                        className="mt-6 p-4 bg-gray-50 rounded-xl"
+                      >
+                        <div className="text-sm text-gray-600">
+                          <strong>{selectedChannels.length} channels</strong> selected — Campaign will reach users across all platforms simultaneously
+                        </div>
+                      </motion.div>
+                    )}
+                  </motion.div>
+                )}
+
+                {/* Step 2: Map / DOOH Targeting */}
+                {currentStep === 2 && (
+                  <motion.div
+                    key="step2"
+                    initial={{ opacity: 0, x: 50 }}
+                    animate={{ opacity: 1, x: 0 }}
+                    exit={{ opacity: 0, x: -50 }}
+                    className="space-y-4"
+                  >
+                    <div className="flex items-center justify-between mb-4">
+                      <div>
+                        <h3 className="text-xl font-bold text-gray-900">Set Campaign Target Area</h3>
+                        <p className="text-gray-500 text-sm">Define the geographic reach for DOOH screens</p>
+                      </div>
+                      {visibleScreens > 0 && (
+                        <motion.div
+                          initial={{ scale: 0 }}
+                          animate={{ scale: 1 }}
+                          className="px-4 py-2 bg-green-100 text-green-700 rounded-full font-bold flex items-center gap-2"
+                        >
+                          <Monitor size={16} />
+                          {visibleScreens} PDOOH Screens
+                        </motion.div>
+                      )}
+                    </div>
+
+                    {/* Map Container */}
+                    <div className="relative bg-gradient-to-br from-slate-100 to-slate-200 rounded-xl overflow-hidden h-[350px] border border-gray-200">
+                      {/* Stylized Map Background */}
+                      <div className="absolute inset-0">
+                        {/* Grid pattern for streets */}
+                        <svg className="w-full h-full opacity-30">
+                          <defs>
+                            <pattern id="grid" width="40" height="40" patternUnits="userSpaceOnUse">
+                              <path d="M 40 0 L 0 0 0 40" fill="none" stroke="#94a3b8" strokeWidth="0.5"/>
+                            </pattern>
+                          </defs>
+                          <rect width="100%" height="100%" fill="url(#grid)" />
+                        </svg>
+                        
+                        {/* Water area (bay) */}
+                        <div className="absolute bottom-0 right-0 w-1/3 h-1/2 bg-blue-200/50 rounded-tl-[100px]" />
+                        
+                        {/* Parks */}
+                        <div className="absolute top-[20%] left-[15%] w-16 h-12 bg-green-200/60 rounded-lg" />
+                        <div className="absolute top-[60%] right-[40%] w-20 h-8 bg-green-200/60 rounded-lg" />
+                      </div>
+
+                      {/* Center Point (Property Location) */}
+                      <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 z-20">
+                        <motion.div
+                          animate={{ scale: [1, 1.2, 1] }}
+                          transition={{ duration: 1.5, repeat: Infinity }}
+                          className="w-4 h-4 bg-purple-600 rounded-full border-2 border-white shadow-lg"
+                        />
+                      </div>
+
+                      {/* Expanding Radius Circle */}
+                      <motion.div
+                        className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 rounded-full border-2 border-purple-400 bg-purple-400/10 z-10"
+                        style={{
+                          width: `${mapRadius * 3}px`,
+                          height: `${mapRadius * 3}px`,
+                        }}
+                      />
+                      <motion.div
+                        className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 rounded-full border border-purple-300/50 z-10"
+                        style={{
+                          width: `${mapRadius * 3.5}px`,
+                          height: `${mapRadius * 3.5}px`,
+                        }}
+                      />
+
+                      {/* PDOOH Screen Markers */}
+                      {screenPositions.map((pos, i) => {
+                        // Calculate if this screen is within the radius
+                        const distFromCenter = Math.sqrt(Math.pow(pos.x - 50, 2) + Math.pow(pos.y - 50, 2));
+                        const isVisible = (mapRadius / 2) > distFromCenter;
+                        
+                        return (
+                          <AnimatePresence key={i}>
+                            {isVisible && (
+                              <motion.div
+                                initial={{ scale: 0, opacity: 0 }}
+                                animate={{ scale: 1, opacity: 1 }}
+                                exit={{ scale: 0, opacity: 0 }}
+                                transition={{ delay: pos.delay * 0.5 }}
+                                className="absolute z-30"
+                                style={{ left: `${pos.x}%`, top: `${pos.y}%` }}
+                              >
+                                <div className="relative -translate-x-1/2 -translate-y-1/2">
+                                  <div className="w-6 h-6 bg-green-500 rounded-lg flex items-center justify-center shadow-md">
+                                    <Monitor size={12} className="text-white" />
+                                  </div>
+                                  <motion.div
+                                    animate={{ scale: [1, 1.5, 1], opacity: [0.5, 0, 0.5] }}
+                                    transition={{ duration: 2, repeat: Infinity }}
+                                    className="absolute inset-0 bg-green-400 rounded-lg"
+                                  />
+                                </div>
+                              </motion.div>
+                            )}
+                          </AnimatePresence>
+                        );
+                      })}
+
+                      {/* Map Labels */}
+                      <div className="absolute top-4 left-4 bg-white/90 px-3 py-1 rounded-lg shadow text-xs font-medium text-gray-600">
+                        Helsinki Center
+                      </div>
+                      <div className="absolute bottom-4 right-4 bg-white/90 px-3 py-1 rounded-lg shadow text-xs text-gray-500">
+                        Radius: {Math.round(mapRadius * 0.05 * 10) / 10} km
+                      </div>
+                    </div>
+
+                    {/* Screen Count Summary */}
+                    {visibleScreens > 0 && (
+                      <motion.div
+                        initial={{ opacity: 0, y: 10 }}
+                        animate={{ opacity: 1, y: 0 }}
+                        className="grid grid-cols-3 gap-4"
+                      >
+                        <div className="p-3 bg-green-50 rounded-xl border border-green-100 text-center">
+                          <div className="text-2xl font-black text-green-600">{Math.min(visibleScreens, 24)}</div>
+                          <div className="text-xs text-green-700">Tram Screens</div>
+                        </div>
+                        <div className="p-3 bg-blue-50 rounded-xl border border-blue-100 text-center">
+                          <div className="text-2xl font-black text-blue-600">{Math.min(Math.floor(visibleScreens * 0.4), 18)}</div>
+                          <div className="text-xs text-blue-700">Mall Displays</div>
+                        </div>
+                        <div className="p-3 bg-purple-50 rounded-xl border border-purple-100 text-center">
+                          <div className="text-2xl font-black text-purple-600">{Math.min(Math.floor(visibleScreens * 0.25), 14)}</div>
+                          <div className="text-xs text-purple-700">Street Screens</div>
+                        </div>
+                      </motion.div>
+                    )}
+                  </motion.div>
+                )}
+
+                {/* Step 3: Budget */}
+                {currentStep === 3 && (
+                  <motion.div
+                    key="step3"
+                    initial={{ opacity: 0, x: 50 }}
+                    animate={{ opacity: 1, x: 0 }}
+                    exit={{ opacity: 0, x: -50 }}
+                    className="space-y-6"
+                  >
+                    <div className="mb-6">
+                      <h3 className="text-xl font-bold text-gray-900">Set Campaign Budget</h3>
+                      <p className="text-gray-500 text-sm">Allocate budget across selected channels</p>
+                    </div>
+
+                    <div className="bg-gradient-to-r from-purple-50 to-blue-50 rounded-xl p-6">
+                      <div className="text-center mb-6">
+                        <div className="text-5xl font-black text-purple-600">€{budget}</div>
+                        <div className="text-gray-500 mt-1">Total Campaign Budget</div>
+                      </div>
+
+                      <div className="relative h-4 bg-gray-200 rounded-full overflow-hidden">
+                        <motion.div
+                          className="absolute top-0 left-0 h-full bg-gradient-to-r from-purple-600 to-purple-400 rounded-full"
+                          style={{ width: `${(budget / 1500) * 100}%` }}
+                        />
+                      </div>
+
+                      <div className="mt-6 grid grid-cols-3 gap-4">
+                        {channels.map((ch) => (
+                          <div key={ch.id} className="text-center p-3 bg-white rounded-lg">
+                            <ch.icon size={20} className="mx-auto text-gray-400 mb-1" />
+                            <div className="text-xs text-gray-500">{ch.label}</div>
+                            <div className="font-bold text-gray-900">€{Math.round(budget / 3)}</div>
+                          </div>
+                        ))}
+                      </div>
+                    </div>
+
+                    <div className="p-4 bg-blue-50 rounded-xl border border-blue-100">
+                      <div className="flex items-start gap-3">
+                        <Lightbulb size={20} className="text-blue-600 mt-0.5" />
+                        <div>
+                          <div className="font-semibold text-blue-900">Smart Budget Distribution</div>
+                          <div className="text-sm text-blue-700">AI automatically optimizes spend across channels based on performance</div>
+                        </div>
+                      </div>
+                    </div>
+                  </motion.div>
+                )}
+
+                {/* Step 4: Creative Generation */}
+                {currentStep === 4 && (
+                  <motion.div
+                    key="step4"
+                    initial={{ opacity: 0, x: 50 }}
+                    animate={{ opacity: 1, x: 0 }}
+                    exit={{ opacity: 0, x: -50 }}
+                    className="space-y-4"
+                  >
+                    <div className="mb-6">
+                      <h3 className="text-xl font-bold text-gray-900">AI Creative Generation</h3>
+                      <p className="text-gray-500 text-sm">Generating optimized ads for {selectedProperties.length} properties × 3 channels</p>
+                    </div>
+
+                    <div className="grid md:grid-cols-3 gap-4">
+                      {[
+                        { channel: 'Meta Feed', size: '1080×1080', icon: Smartphone },
+                        { channel: 'Display Banner', size: '300×250', icon: Monitor },
+                        { channel: 'DOOH Screen', size: '1920×1080', icon: Bus },
+                      ].map((creative, i) => (
+                        <motion.div
+                          key={i}
+                          initial={{ opacity: 0, y: 20 }}
+                          animate={{ opacity: 1, y: 0 }}
+                          transition={{ delay: i * 0.2 }}
+                          className="bg-white rounded-xl border border-gray-200 overflow-hidden"
+                        >
+                          {/* Preview */}
+                          <div 
+                            className="h-40 flex items-center justify-center relative"
+                            style={{ backgroundColor: '#006450' }}
+                          >
+                            {!creativesGenerated ? (
+                              <motion.div
+                                animate={{ rotate: 360 }}
+                                transition={{ duration: 1.5, repeat: Infinity, ease: "linear" }}
+                              >
+                                <RefreshCw size={32} className="text-white/50" />
+                              </motion.div>
+                            ) : (
+                              <motion.div
+                                initial={{ opacity: 0, scale: 0.8 }}
+                                animate={{ opacity: 1, scale: 1 }}
+                                className="text-center text-white p-4"
+                              >
+                                <div className="text-xs font-bold mb-2">KIINTEISTÖMAAILMA</div>
+                                <div className="text-sm font-bold">4 upeaa kotia</div>
+                                <div className="text-xs opacity-75 mt-1">Ullanlinna • Kruununhaka • Töölö</div>
+                                <div className="mt-3 px-3 py-1 rounded text-xs font-bold inline-block" style={{ backgroundColor: '#4bd072', color: '#006450' }}>
+                                  Katso lisää →
+                                </div>
+                              </motion.div>
+                            )}
+                          </div>
+                          
+                          <div className="p-3">
+                            <div className="flex items-center justify-between">
+                              <div className="flex items-center gap-2">
+                                <creative.icon size={14} className="text-gray-400" />
+                                <span className="text-sm font-medium text-gray-900">{creative.channel}</span>
+                              </div>
+                              {creativesGenerated ? (
+                                <span className="px-2 py-0.5 bg-green-100 text-green-700 text-xs font-medium rounded-full">
+                                  ✓ Ready
+                                </span>
+                              ) : (
+                                <span className="px-2 py-0.5 bg-yellow-100 text-yellow-700 text-xs font-medium rounded-full">
+                                  Generating...
+                                </span>
+                              )}
+                            </div>
+                            <div className="text-xs text-gray-500 mt-1">{creative.size}</div>
+                          </div>
+                        </motion.div>
+                      ))}
+                    </div>
+
+                    {creativesGenerated && (
+                      <motion.div
+                        initial={{ opacity: 0, y: 10 }}
+                        animate={{ opacity: 1, y: 0 }}
+                        className="p-4 bg-green-50 rounded-xl border border-green-100"
+                      >
+                        <div className="flex items-center gap-3">
+                          <CheckCircle2 size={24} className="text-green-600" />
+                          <div>
+                            <div className="font-semibold text-green-900">12 creatives generated!</div>
+                            <div className="text-sm text-green-700">Auto-tagged with UTM parameters for tracking</div>
+                          </div>
+                        </div>
+                      </motion.div>
+                    )}
+                  </motion.div>
+                )}
+
+                {/* Step 5: Launch */}
+                {currentStep === 5 && (
+                  <motion.div
+                    key="step5"
+                    initial={{ opacity: 0, x: 50 }}
+                    animate={{ opacity: 1, x: 0 }}
+                    exit={{ opacity: 0, x: -50 }}
+                    className="text-center py-8"
+                  >
+                    {!campaignLaunched ? (
+                      <motion.div
+                        animate={{ scale: [1, 1.05, 1] }}
+                        transition={{ duration: 0.5, repeat: Infinity }}
+                      >
+                        <div className="w-24 h-24 mx-auto rounded-full bg-purple-100 flex items-center justify-center mb-6">
+                          <Rocket size={48} className="text-purple-600" />
+                        </div>
+                        <h3 className="text-2xl font-bold text-gray-900 mb-2">Launching Campaign...</h3>
+                        <p className="text-gray-500">Deploying to all channels</p>
+                      </motion.div>
+                    ) : (
+                      <motion.div
+                        initial={{ scale: 0.8, opacity: 0 }}
+                        animate={{ scale: 1, opacity: 1 }}
+                      >
+                        <motion.div
+                          initial={{ scale: 0 }}
+                          animate={{ scale: 1 }}
+                          transition={{ type: "spring", stiffness: 200 }}
+                          className="w-24 h-24 mx-auto rounded-full bg-green-500 flex items-center justify-center mb-6"
+                        >
+                          <Check size={48} className="text-white" />
+                        </motion.div>
+                        <h3 className="text-2xl font-bold text-gray-900 mb-2">Campaign Live! 🎉</h3>
+                        <p className="text-gray-500 mb-6">4 properties now advertising across 56 DOOH screens + Meta + Display</p>
+
+                        <div className="grid grid-cols-3 gap-4 max-w-lg mx-auto">
+                          {channels.map((ch) => (
+                            <motion.div
+                              key={ch.id}
+                              initial={{ opacity: 0, y: 10 }}
+                              animate={{ opacity: 1, y: 0 }}
+                              transition={{ delay: 0.2 }}
+                              className="p-3 bg-gray-50 rounded-lg"
+                            >
+                              <ch.icon size={20} className="mx-auto text-green-600 mb-1" />
+                              <div className="text-xs font-medium text-gray-700">{ch.label}</div>
+                              <div className="text-[10px] text-green-600">● Live</div>
+                            </motion.div>
+                          ))}
+                        </div>
+
+                        <motion.div
+                          initial={{ opacity: 0 }}
+                          animate={{ opacity: 1 }}
+                          transition={{ delay: 0.5 }}
+                          className="mt-8 p-4 bg-purple-50 rounded-xl inline-block"
+                        >
+                          <div className="flex items-center gap-2 text-purple-700">
+                            <Clock size={16} />
+                            <span className="font-semibold">Total time: Under 5 minutes</span>
+                          </div>
+                        </motion.div>
+                      </motion.div>
+                    )}
+                  </motion.div>
+                )}
+              </AnimatePresence>
+            </div>
+          </div>
+        </motion.div>
+
+        {/* CTA to Demo */}
+        <motion.div
+          initial={{ opacity: 0, y: 20 }}
+          animate={inView ? { opacity: 1, y: 0 } : {}}
+          transition={{ delay: 0.5 }}
+          className="text-center mt-10"
+        >
+          <a
+            href="https://norr3demo.netlify.app/"
+            target="_blank"
+            rel="noopener noreferrer"
+            className="inline-flex items-center gap-3 px-8 py-4 bg-purple-600 hover:bg-purple-700 text-white font-bold rounded-full shadow-lg hover:shadow-xl transition-all"
+          >
+            <span>Try the Demo Yourself</span>
+            <ExternalLink size={18} />
+          </a>
+          <p className="text-gray-500 text-sm mt-3">
+            Experience the full platform with sample data
+          </p>
+        </motion.div>
+      </div>
+    </section>
+  );
+};
+
+// ============================================
+// REAL-LIFE TRAM CAMPAIGN RESULTS
+// ============================================
+const TramCampaignShowcase = () => {
+  const [ref, inView] = useInView({ triggerOnce: true, threshold: 0.1 });
+  const [currentSlide, setCurrentSlide] = useState(0);
+
+  const media = [
+    { type: 'video', src: import.meta.env.BASE_URL + '1.mp4' },
+    { type: 'image', src: import.meta.env.BASE_URL + '2.jpeg' },
+    { type: 'image', src: import.meta.env.BASE_URL + '3.jpeg' },
+    { type: 'video', src: import.meta.env.BASE_URL + '4.mp4' },
+  ];
+
+  // Auto-switch slides
+  useEffect(() => {
+    if (!inView) return;
+    
+    const interval = setInterval(() => {
+      setCurrentSlide((prev) => (prev + 1) % media.length);
+    }, 5000); // 5 seconds per slide
+
+    return () => clearInterval(interval);
+  }, [inView, media.length]);
+
+  return (
+    <section className="py-24 bg-gradient-to-br from-green-900 via-green-800 to-emerald-900 overflow-hidden relative">
+      {/* KM Skyline Artwork - Animated Background */}
+      <div className="absolute bottom-0 left-0 right-0 h-64 overflow-hidden pointer-events-none z-0 opacity-50">
+        <img 
+          src="https://lhrfgfqwxbgyjbiniotw.supabase.co/storage/v1/object/public/km-src/img/footer.svg" 
+          alt="" 
+          className="h-full absolute bottom-0 left-0"
+          style={{ 
+            width: '250vw',
+            maxWidth: 'none',
+            animation: 'slideFooter 15s linear infinite' 
+          }}
+        />
+      </div>
+
+      <div className="max-w-7xl mx-auto px-6 relative z-10">
+        <motion.div
+          ref={ref}
+          initial={{ opacity: 0, y: 30 }}
+          animate={inView ? { opacity: 1, y: 0 } : {}}
+          className="grid lg:grid-cols-2 gap-12 items-center"
+        >
+          {/* Left - Text Content */}
+          <div className="text-white">
+            <motion.div
+              initial={{ opacity: 0, x: -30 }}
+              animate={inView ? { opacity: 1, x: 0 } : {}}
+              transition={{ delay: 0.2 }}
+            >
+              <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-white/10 border border-white/20 mb-6">
+                <Bus className="w-4 h-4" />
+                <span className="text-sm font-semibold uppercase tracking-wider">Real-Life Results</span>
+              </div>
+              
+              <h2 className="text-4xl md:text-5xl font-black mb-6">
+                Helsinki Tram
+                <br />
+                <span className="text-green-300">Screen Ads in Action</span>
+              </h2>
+              
+              <p className="text-xl text-green-100 mb-8 leading-relaxed">
+                Marketing Engine powers the digital screen advertising on Kiinteistömaailma's branded trams — 
+                automated ad delivery running across Helsinki's tram network.
+              </p>
+
+              <div className="space-y-4 mb-8">
+                {[
+                  'Digital screen ads managed through Marketing Engine',
+                  'Automated ad scheduling with time-based rules',
+                  'Sequential, random, or weighted rotation patterns',
+                  'Priority-based content scheduling for peak hours',
+                ].map((item, i) => (
+                  <motion.div
+                    key={i}
+                    initial={{ opacity: 0, x: -20 }}
+                    animate={inView ? { opacity: 1, x: 0 } : {}}
+                    transition={{ delay: 0.3 + i * 0.1 }}
+                    className="flex items-center gap-3"
+                  >
+                    <div className="w-6 h-6 rounded-full bg-green-400 flex items-center justify-center flex-shrink-0">
+                      <Check size={14} className="text-green-900" />
+                    </div>
+                    <span className="text-green-50">{item}</span>
+                  </motion.div>
+                ))}
+              </div>
+
+              <motion.div
+                initial={{ opacity: 0, y: 20 }}
+                animate={inView ? { opacity: 1, y: 0 } : {}}
+                transition={{ delay: 0.7 }}
+                className="p-4 bg-white/10 rounded-xl border border-white/20 backdrop-blur-sm"
+              >
+                <div className="flex items-center gap-3">
+                  <div className="w-12 h-12 rounded-lg bg-green-400 flex items-center justify-center">
+                    <Flag size={24} className="text-green-900" />
+                  </div>
+                  <div>
+                    <div className="font-bold text-white">Phase 2 Launch: December 2025</div>
+                    <div className="text-green-200 text-sm">Helsinki tram advertising control added to Marketing Engine</div>
+                  </div>
+                </div>
+              </motion.div>
+            </motion.div>
+          </div>
+
+          {/* Right - Media Slider */}
+          <motion.div
+            initial={{ opacity: 0, x: 30 }}
+            animate={inView ? { opacity: 1, x: 0 } : {}}
+            transition={{ delay: 0.3 }}
+            className="relative max-w-lg mx-auto lg:mx-0"
+          >
+            {/* Phone/Device Frame Effect */}
+            <div className="relative rounded-2xl overflow-hidden shadow-2xl bg-black">
+              {/* Media Container */}
+              <div className="relative aspect-[3/4] overflow-hidden">
+                <AnimatePresence mode="wait">
+                  {media.map((item, index) => (
+                    currentSlide === index && (
+                      <motion.div
+                        key={index}
+                        initial={{ opacity: 0, scale: 1.1 }}
+                        animate={{ opacity: 1, scale: 1 }}
+                        exit={{ opacity: 0, scale: 0.95 }}
+                        transition={{ duration: 0.5 }}
+                        className="absolute inset-0"
+                      >
+                        {item.type === 'video' ? (
+                          <video
+                            src={item.src}
+                            autoPlay
+                            muted
+                            loop
+                            playsInline
+                            className="w-full h-full object-cover"
+                          />
+                        ) : (
+                          <img
+                            src={item.src}
+                            alt={`Tram campaign ${index + 1}`}
+                            className="w-full h-full object-cover"
+                          />
+                        )}
+                      </motion.div>
+                    )
+                  ))}
+                </AnimatePresence>
+
+                {/* Overlay gradient */}
+                <div className="absolute inset-0 bg-gradient-to-t from-black/30 via-transparent to-black/20 pointer-events-none" />
+
+                {/* KM Logo */}
+                <div className="absolute top-4 left-4" style={{ filter: 'drop-shadow(0 2px 4px rgba(0,0,0,0.3))' }}>
+                  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 820.08 568.89" className="h-10 w-auto">
+                    <defs>
+                      <style>{`.km-cls-1{fill:#4bd072}.km-cls-2{fill:#fafffe}.km-cls-3{fill:#fefdfc}`}</style>
+                    </defs>
+                    <polygon className="km-cls-3" points="363.41 53.06 263.47 53.06 153.97 177.33 202.64 233.81 363.41 53.06"/>
+                    <polygon className="km-cls-3" points="112.26 222.52 39.26 304.2 39.26 53.06 112.26 53.06 112.26 222.52"/>
+                    <polygon className="km-cls-1" points="366.47 418.05 153.97 177.33 39.26 304.2 39.26 418.05 153.97 289.43 265.21 418.05 366.47 418.05"/>
+                    <polygon className="km-cls-2" points="374.7 418.05 374.7 53.06 577.18 277.26 782.27 53.06 782.27 418.05 708.41 418.05 708.41 244.24 578.49 389.37 447.7 245.11 447.7 418.05 374.7 418.05"/>
+                  </svg>
+                </div>
+              </div>
+
+              {/* Slide Indicators */}
+              <div className="absolute bottom-4 left-1/2 -translate-x-1/2 flex gap-2">
+                {media.map((_, index) => (
+                  <button
+                    key={index}
+                    onClick={() => setCurrentSlide(index)}
+                    className={`transition-all ${
+                      currentSlide === index
+                        ? 'w-8 h-2 bg-white rounded-full'
+                        : 'w-2 h-2 bg-white/50 rounded-full hover:bg-white/70'
+                    }`}
+                  />
+                ))}
+              </div>
+            </div>
+
+            {/* Decorative elements */}
+            <div className="absolute -top-4 -right-4 w-24 h-24 bg-green-400/20 rounded-full blur-2xl" />
+            <div className="absolute -bottom-4 -left-4 w-32 h-32 bg-emerald-400/20 rounded-full blur-2xl" />
+          </motion.div>
+        </motion.div>
       </div>
     </section>
   );
@@ -2759,6 +3777,8 @@ function App() {
       <Challenge />
       <Strategy />
       <Solution />
+      <CampaignCreationDemo />
+      <TramCampaignShowcase />
       <Execution />
       <Results />
       <Categories />

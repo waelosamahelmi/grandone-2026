@@ -164,6 +164,16 @@
     }
   }
 
+  /* KM Skyline sliding animation - matches display.html */
+  @keyframes slideFooter {
+    0% {
+      transform: translateX(-50vw);
+    }
+    100% {
+      transform: translateX(-110vw);
+    }
+  }
+
   /* Pulse glow */
   .animate-pulse-glow {
     animation: pulse-glow 2s ease-in-out infinite;
